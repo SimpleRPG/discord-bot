@@ -3,7 +3,7 @@ import { SubCommandPluginCommand, SubCommandPluginCommandOptions } from '@sapphi
 import type { Message } from 'discord.js';
 
 @ApplyOptions<SubCommandPluginCommandOptions>({
-	description: 'A basic command'
+	description: 'A ping command'
 })
 export class UserCommand extends SubCommandPluginCommand {
 	public async messageRun(message: Message) {
