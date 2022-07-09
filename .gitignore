@@ -1,0 +1,9 @@
+node_modules/
+.vscode/
+.idea/
+
+# Build files
+dist/
+
+# Environment file
+.env
