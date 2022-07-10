@@ -1,7 +1,6 @@
 import { ApplyOptions } from '@sapphire/decorators';
 import { SubCommandPluginCommand, SubCommandPluginCommandOptions } from '@sapphire/plugin-subcommands';
 import { Message, MessageEmbed } from 'discord.js';
-import { getFields, getShape } from 'postgrest-js-tools';
 import { attributeValueToString } from '../services/userService';
 import supabase from '../supabase';
 import type { definitions } from '../types/supabase';
@@ -23,21 +22,9 @@ export class UserCommand extends SubCommandPluginCommand {
     public async messageRun(message: Message) {
         const { author } = message;
 
-        const characterShape = getShape<Character>()({
-            id: true,
-            exp: true,
-            level: true,
-            money: true,
-            discord_id: true,
-            location: {
-                _: "location_id",
-                name: true,
-            },
-        });
-
         const { body: character } = await supabase
-            .from<typeof characterShape>('characters')
-            .select(getFields(characterShape))
+            .from<Character>('characters')
+            .select('id,exp,level,money,discord_id,location:location_id(name)')
             .eq('discord_id', author.id)
             .single();
 
