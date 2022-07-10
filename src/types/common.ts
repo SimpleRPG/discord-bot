@@ -1,15 +1,16 @@
-export type AttributeValue =  {
-    name?: string,
-    value?: number,
-    isPercentage?: boolean,
-}
+import type { definitions } from "./supabase";
+
 
 export type CharacterAttributes = {
-    hp: AttributeValue,
-    strength: AttributeValue,
-    defense: AttributeValue,
-    criticalChance: AttributeValue,
-    criticalDamage: AttributeValue,
-    evadeChance: AttributeValue,
-    escapeChance: AttributeValue,
+    hp: CharacterAttribute,
+    strength: CharacterAttribute,
+    defense: CharacterAttribute,
+    criticalChance: CharacterAttribute,
+    criticalDamage: CharacterAttribute,
+    evadeChance: CharacterAttribute,
+    escapeChance: CharacterAttribute,
+}
+
+export type CharacterAttribute = definitions['character_attributes'] & {
+    attribute: definitions['attributes'];
 }
