@@ -1,7 +1,8 @@
 import { ApplyOptions } from '@sapphire/decorators';
 import { SubCommandPluginCommand, SubCommandPluginCommandOptions } from '@sapphire/plugin-subcommands';
 import { Message, MessageEmbed } from 'discord.js';
-import { attributeValueToString, getAttributesWithValuesFromCharacter, getCharacterCurrentLocation } from '../services/userService';
+import { getFields, getShape } from 'postgrest-js-tools';
+import { attributeValueToString } from '../services/userService';
 import supabase from '../supabase';
 import type { definitions } from '../types/supabase';
 
@@ -12,19 +13,55 @@ export class UserCommand extends SubCommandPluginCommand {
     public async messageRun(message: Message) {
         const { author } = message;
 
-        let { body: characters } = await supabase
-            .from<definitions['characters']>('characters')
-            .select()
+        // character include location
+        type Character = definitions['characters'] & {
+            location: definitions['locations'],
+        };
+
+
+        const characterShape = getShape<Character>()({
+            id: true,
+            exp: true,
+            level: true,
+            money: true,
+            discord_id: true,
+            location: {
+                _: "location_id",
+                name: true,
+            },
+        });
+
+        const { body: characters } = await supabase
+            .from<typeof characterShape>('characters')
+            .select(getFields(characterShape))
             .eq('discord_id', author.id);
 
         if (characters?.[0] === null) {
             return message.reply('You have no character!');
         }
 
-        const character: definitions['characters'] = characters![0];
+        const character = characters![0];
 
-        let attributeValues = await getAttributesWithValuesFromCharacter(character);
-        let locationName = (await getCharacterCurrentLocation(character)).name;
+        type CharacterAttribute = definitions['character_attributes'] & {
+            attribute: definitions['attributes'],
+        };
+
+        const characterAttributeShape = getShape<CharacterAttribute>()({
+            id: true,
+            value: true,
+            character_id: true,
+            attribute: {
+                _: "attribute_id",
+                name: true,
+                is_percentage: true,
+            }
+        });
+
+        const { body: characterAttributes } = await supabase
+            .from<typeof characterAttributeShape>('character_attributes')
+            .select(getFields(characterAttributeShape))
+            .eq('character_id', character.id);
+
 
         const embed = new MessageEmbed()
             .setTitle(`${author.username}'s profile`)
@@ -34,21 +71,33 @@ export class UserCommand extends SubCommandPluginCommand {
 
         embed.addField('Level', `${character.level}`, true)
             .addField('Exp', `${character.exp} / 200`, true)
-            .addField('Money', character.money.toString(), true)
-            .addField('Current location', locationName);
+            .addField('Money', character.money!.toString(), true)
+            .addField('Current location', character.location!.name!);
 
-        embed.addField('Attributes', `
-            HP: ${attributeValueToString(attributeValues.hp)}
-            Strength: ${attributeValueToString(attributeValues.strength)}
-            Defense: ${attributeValueToString(attributeValues.defense)}
-            Critical Chance: ${attributeValueToString(attributeValues.criticalChance)}
-            Critical Damage: ${attributeValueToString(attributeValues.criticalDamage)}
-            Evade Chance: ${attributeValueToString(attributeValues.evadeChance)}
-            Escape Chance: ${attributeValueToString(attributeValues.escapeChance)}
-        `);
 
-        return await message.channel.send({
+        let attributesValue = '';
+
+        characterAttributes?.forEach((characterAttribute) => {
+            attributesValue += `${characterAttribute.attribute.name}: ${attributeValueToString(characterAttribute.value, characterAttribute.attribute.is_percentage)}\n`;
+        });
+
+        embed.addField('Attributes', attributesValue);
+
+        embed.footer = {
+            text: `Bot Latency ?ms. API Latency ?ms.`
+        }
+
+        const msg = await message.channel.send({
             embeds: [embed]
+        });
+
+        embed.footer = {
+            text: `Bot Latency ${Math.round(this.container.client.ws.ping)}ms. API Latency ${msg.createdTimestamp - message.createdTimestamp
+                }ms.`
+        }
+
+        return msg.edit({
+            embeds: [embed],
         });
     }
 }
