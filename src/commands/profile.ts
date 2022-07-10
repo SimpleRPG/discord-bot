@@ -51,11 +51,9 @@ export class UserCommand extends SubCommandPluginCommand {
             .addField('Current location', character.location!.name!);
 
 
-        let attributesValue = '';
-
-        characterAttributes?.forEach((characterAttribute) => {
-            attributesValue += `${characterAttribute.attribute.name}: ${attributeValueToString(characterAttribute.value, characterAttribute.attribute.is_percentage)}\n`;
-        });
+        const attributesValue = characterAttributes!.map((characterAttribute) => {
+            return `${characterAttribute.attribute.name}: ${attributeValueToString(characterAttribute.value, characterAttribute.attribute.is_percentage)}`;
+        }).join('\n');
 
         embed.addField('Attributes', attributesValue);
 
