@@ -898,6 +898,7 @@ export interface paths {
           id?: parameters["rowFilter.attributes.id"];
           created_at?: parameters["rowFilter.attributes.created_at"];
           name?: parameters["rowFilter.attributes.name"];
+          is_percentage?: parameters["rowFilter.attributes.is_percentage"];
           /** Filtering Columns */
           select?: parameters["select"];
           /** Ordering */
@@ -951,6 +952,7 @@ export interface paths {
           id?: parameters["rowFilter.attributes.id"];
           created_at?: parameters["rowFilter.attributes.created_at"];
           name?: parameters["rowFilter.attributes.name"];
+          is_percentage?: parameters["rowFilter.attributes.is_percentage"];
         };
         header: {
           /** Preference */
@@ -968,6 +970,7 @@ export interface paths {
           id?: parameters["rowFilter.attributes.id"];
           created_at?: parameters["rowFilter.attributes.created_at"];
           name?: parameters["rowFilter.attributes.name"];
+          is_percentage?: parameters["rowFilter.attributes.is_percentage"];
         };
         body: {
           /** attributes */
@@ -1203,8 +1206,8 @@ export interface definitions {
      * This is a Foreign Key to `attributes.id`.<fk table='attributes' column='id'/>
      */
     attribute_id?: number;
-    /** Format: bigint */
-    value?: number;
+    /** Format: real */
+    value: number;
   };
   entity_locations: {
     /**
@@ -1309,13 +1312,13 @@ export interface definitions {
      */
     created_at?: string;
     /** Format: character varying */
-    discord_id?: string;
+    discord_id: string;
     /** Format: integer */
-    level?: number;
+    level: number;
     /** Format: bigint */
-    exp?: number;
+    exp: number;
     /** Format: bigint */
-    money?: number;
+    money: number;
     /**
      * Format: bigint
      * @description Note:
@@ -1368,7 +1371,7 @@ export interface definitions {
      */
     created_at?: string;
     /** Format: character varying */
-    name?: string;
+    name: string;
     /** Format: text */
     description?: string;
     /** Format: integer */
@@ -1388,6 +1391,8 @@ export interface definitions {
     created_at?: string;
     /** Format: character varying */
     name: string;
+    /** Format: boolean */
+    is_percentage: boolean;
   };
   entity_attributes: {
     /**
@@ -1476,7 +1481,7 @@ export interface parameters {
   "rowFilter.character_attributes.character_id": string;
   /** Format: bigint */
   "rowFilter.character_attributes.attribute_id": string;
-  /** Format: bigint */
+  /** Format: real */
   "rowFilter.character_attributes.value": string;
   /** @description entity_locations */
   "body.entity_locations": definitions["entity_locations"];
@@ -1574,6 +1579,8 @@ export interface parameters {
   "rowFilter.attributes.created_at": string;
   /** Format: character varying */
   "rowFilter.attributes.name": string;
+  /** Format: boolean */
+  "rowFilter.attributes.is_percentage": string;
   /** @description entity_attributes */
   "body.entity_attributes": definitions["entity_attributes"];
   /** Format: bigint */
