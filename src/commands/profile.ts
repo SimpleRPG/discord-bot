@@ -6,18 +6,22 @@ import { attributeValueToString } from '../services/userService';
 import supabase from '../supabase';
 import type { definitions } from '../types/supabase';
 
+// character include location
+type Character = definitions['characters'] & {
+    location: definitions['locations'],
+};
+
+type CharacterAttribute = definitions['character_attributes'] & {
+    attribute: definitions['attributes'],
+};
+
+
 @ApplyOptions<SubCommandPluginCommandOptions>({
     description: 'A profile command'
 })
 export class UserCommand extends SubCommandPluginCommand {
     public async messageRun(message: Message) {
         const { author } = message;
-
-        // character include location
-        type Character = definitions['characters'] & {
-            location: definitions['locations'],
-        };
-
 
         const characterShape = getShape<Character>()({
             id: true,
@@ -31,36 +35,21 @@ export class UserCommand extends SubCommandPluginCommand {
             },
         });
 
-        const { body: characters } = await supabase
+        const { body: character } = await supabase
             .from<typeof characterShape>('characters')
             .select(getFields(characterShape))
-            .eq('discord_id', author.id);
+            .eq('discord_id', author.id)
+            .single();
 
-        if (characters?.[0] === null) {
+        if (character === null) {
             return message.reply('You have no character!');
         }
 
-        const character = characters![0];
-
-        type CharacterAttribute = definitions['character_attributes'] & {
-            attribute: definitions['attributes'],
-        };
-
-        const characterAttributeShape = getShape<CharacterAttribute>()({
-            id: true,
-            value: true,
-            character_id: true,
-            attribute: {
-                _: "attribute_id",
-                name: true,
-                is_percentage: true,
-            }
-        });
-
         const { body: characterAttributes } = await supabase
-            .from<typeof characterAttributeShape>('character_attributes')
-            .select(getFields(characterAttributeShape))
-            .eq('character_id', character.id);
+            .from<CharacterAttribute>('character_attributes')
+            .select('id,value,character_id,attribute_id,attribute:attribute_id(name,is_percentage)')
+            .eq('character_id', character.id)
+            .order('attribute_id');
 
 
         const embed = new MessageEmbed()
