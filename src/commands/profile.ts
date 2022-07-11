@@ -1,19 +1,38 @@
 import { ApplyOptions } from '@sapphire/decorators';
 import { SubCommandPluginCommand, SubCommandPluginCommandOptions } from '@sapphire/plugin-subcommands';
 import { Message, MessageEmbed } from 'discord.js';
+import { getFields, getShape } from 'postgrest-js-tools';
 import { attributeValueToString } from '../services/userService';
+// import { getFields } from 'postgrest-js-tools';
+// import { attributeValueToString } from '../services/userService';
 import supabase from '../supabase';
 import type { definitions } from '../types/supabase';
 
+type TCharacterAttributes = definitions['character_attributes'] & {
+    attribute: definitions['attributes'];
+}
+
 // character include location
-type Character = definitions['characters'] & {
-    location: definitions['locations'],
+type TCharacter = definitions['characters'] & {
+    location: definitions['locations'];
+    character_attributes: TCharacterAttributes | Array<TCharacterAttributes>;
 };
 
-type CharacterAttribute = definitions['character_attributes'] & {
-    attribute: definitions['attributes'],
-};
-
+const characterShape = getShape<TCharacter>()({
+    "*": true,
+    location: {
+        _: "location_id",
+        name: true,
+    },
+    character_attributes: {
+        _: "character_attributes",
+        "*": true,
+        attribute: {
+            _: "attribute_id",
+            "*": true,
+        }
+    },
+});
 
 @ApplyOptions<SubCommandPluginCommandOptions>({
     description: 'A profile command'
@@ -23,8 +42,8 @@ export class UserCommand extends SubCommandPluginCommand {
         const { author } = message;
 
         const { body: character } = await supabase
-            .from<Character>('characters')
-            .select('id,exp,level,money,discord_id,location:location_id(name)')
+            .from<typeof characterShape>('characters')
+            .select(getFields(characterShape))
             .eq('discord_id', author.id)
             .single();
 
@@ -32,12 +51,7 @@ export class UserCommand extends SubCommandPluginCommand {
             return message.reply('You have no character!');
         }
 
-        const { body: characterAttributes } = await supabase
-            .from<CharacterAttribute>('character_attributes')
-            .select('id,value,character_id,attribute_id,attribute:attribute_id(name,is_percentage)')
-            .eq('character_id', character.id)
-            .order('attribute_id');
-
+        const characterAttributes = character.character_attributes as Array<TCharacterAttributes>;
 
         const embed = new MessageEmbed()
             .setTitle(`${author.username}'s profile`)
@@ -51,11 +65,11 @@ export class UserCommand extends SubCommandPluginCommand {
             .addField('Current location', character.location!.name!);
 
 
-        const attributesValue = characterAttributes!.map((characterAttribute) => {
+        const attributesValue = characterAttributes.map((characterAttribute) => {
             return `${characterAttribute.attribute.name}: ${attributeValueToString(characterAttribute.value, characterAttribute.attribute.is_percentage)}`;
         }).join('\n');
 
-        embed.addField('Attributes', attributesValue);
+        embed.addField('Attributes', attributesValue || '');
 
         embed.footer = {
             text: `Bot Latency ?ms. API Latency ?ms.`
