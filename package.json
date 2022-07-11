@@ -25,6 +25,6 @@
     "@sapphire/plugin-subcommands": "^2.2.0",
     "@supabase/supabase-js": "^1.35.4",
     "discord.js": "^13.8.1",
-    "postgrest-js-tools": "^1.1.0"
+    "postgrest-js-tools": "^1.1.1"
   }
 }
