@@ -3,8 +3,6 @@ import { SubCommandPluginCommand, SubCommandPluginCommandOptions } from '@sapphi
 import { Message, MessageEmbed } from 'discord.js';
 import { getFields, getShape } from 'postgrest-js-tools';
 import { attributeValueToString } from '../services/userService';
-// import { getFields } from 'postgrest-js-tools';
-// import { attributeValueToString } from '../services/userService';
 import supabase from '../supabase';
 import type { definitions } from '../types/supabase';
 
@@ -15,7 +13,7 @@ type TCharacterAttributes = definitions['character_attributes'] & {
 // character include location
 type TCharacter = definitions['characters'] & {
     location: definitions['locations'];
-    character_attributes: TCharacterAttributes | Array<TCharacterAttributes>;
+    character_attributes: TCharacterAttributes | TCharacterAttributes[];
 };
 
 const characterShape = getShape<TCharacter>()({
@@ -71,7 +69,7 @@ export class UserCommand extends SubCommandPluginCommand {
             return `${characterAttribute.attribute.name}: ${attributeValueToString(characterAttribute.value, characterAttribute.attribute.is_percentage)}`;
         }).join('\n');
 
-        embed.addField('Attributes', attributesValue || '');
+        embed.addField('Attributes', attributesValue);
 
         embed.footer = {
             text: `Bot Latency ?ms. API Latency ?ms.`
