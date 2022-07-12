@@ -34,6 +34,8 @@ const characterShape = getShape<TCharacter>()({
     },
 });
 
+const characterFields = getFields(characterShape);
+
 @ApplyOptions<SubCommandPluginCommandOptions>({
     description: 'A profile command'
 })
@@ -43,7 +45,7 @@ export class UserCommand extends SubCommandPluginCommand {
 
         const { body: character } = await supabase
             .from<typeof characterShape>('characters')
-            .select(getFields(characterShape))
+            .select(characterFields)
             .eq('discord_id', author.id)
             .single();
 
