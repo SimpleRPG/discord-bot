@@ -7,85 +7,85 @@ import supabase from '../supabase';
 import type { definitions } from '../types/supabase';
 
 type TCharacterAttributes = definitions['character_attributes'] & {
-    attribute: definitions['attributes'];
-}
+	attribute: definitions['attributes'];
+};
 
 // character include location
 type TCharacter = definitions['characters'] & {
-    location: definitions['locations'];
-    character_attributes: TCharacterAttributes | TCharacterAttributes[];
+	location: definitions['locations'];
+	character_attributes: TCharacterAttributes | TCharacterAttributes[];
 };
 
 const characterShape = getShape<TCharacter>()({
-    "*": true,
-    location: {
-        _: "location_id",
-        name: true,
-    },
-    character_attributes: {
-        _: "character_attributes",
-        "*": true,
-        attribute: {
-            _: "attribute_id",
-            "*": true,
-        }
-    },
+	'*': true,
+	location: {
+		_: 'location_id',
+		name: true
+	},
+	character_attributes: {
+		_: 'character_attributes',
+		'*': true,
+		attribute: {
+			_: 'attribute_id',
+			'*': true
+		}
+	}
 });
 
 const characterFields = getFields(characterShape);
 
 @ApplyOptions<SubCommandPluginCommandOptions>({
-    description: 'A profile command'
+	description: 'A profile command'
 })
 export class UserCommand extends SubCommandPluginCommand {
-    public async messageRun(message: Message) {
-        const { author } = message;
+	public async messageRun(message: Message) {
+		const { author } = message;
 
-        const { body: character } = await supabase
-            .from<typeof characterShape>('characters')
-            .select(characterFields)
-            .eq('discord_id', author.id)
-            .single();
+		const { body: character } = await supabase
+			.from<typeof characterShape>('characters')
+			.select(characterFields)
+			.eq('discord_id', author.id)
+			.single();
 
-        if (character === null) {
-            return message.reply('You have no character!');
-        }
+		if (character === null) {
+			return message.reply('You have no character!');
+		}
 
-        const characterAttributes = character.character_attributes as Array<TCharacterAttributes>;
+		const characterAttributes = character.character_attributes as Array<TCharacterAttributes>;
 
-        const embed = new MessageEmbed()
-            .setTitle(`${author.username}'s profile`)
-            .setColor('#0099ff')
-            .setThumbnail(`${author.avatarURL()}`);
+		const embed = new MessageEmbed().setTitle(`${author.username}'s profile`).setColor('#0099ff').setThumbnail(`${author.avatarURL()}`);
 
+		embed
+			.addField('Level', `${character.level}`, true)
+			.addField('Exp', `${character.exp} / 200`, true)
+			.addField('Money', character.money!.toString(), true)
+			.addField('Current location', character.location!.name!);
 
-        embed.addField('Level', `${character.level}`, true)
-            .addField('Exp', `${character.exp} / 200`, true)
-            .addField('Money', character.money!.toString(), true)
-            .addField('Current location', character.location!.name!);
+		const attributesValue = characterAttributes
+			.map((characterAttribute) => {
+				return `${characterAttribute.attribute.name}: ${attributeValueToString(
+					characterAttribute.value,
+					characterAttribute.attribute.is_percentage
+				)}`;
+			})
+			.join('\n');
 
+		embed.addField('Attributes', attributesValue);
 
-        const attributesValue = characterAttributes.map((characterAttribute) => {
-            return `${characterAttribute.attribute.name}: ${attributeValueToString(characterAttribute.value, characterAttribute.attribute.is_percentage)}`;
-        }).join('\n');
+		embed.footer = {
+			text: `Bot Latency ?ms. API Latency ?ms.`
+		};
 
-        embed.addField('Attributes', attributesValue);
+		const msg = await message.channel.send({
+			embeds: [embed]
+		});
 
-        embed.footer = {
-            text: `Bot Latency ?ms. API Latency ?ms.`
-        }
+		embed.footer = {
+			text: `Bot Latency ${Math.round(this.container.client.ws.ping)}ms. API Latency ${msg.createdTimestamp - message.createdTimestamp}ms.`
+		};
 
-        const msg = await message.channel.send({
-            embeds: [embed]
-        });
-
-        embed.footer = {
-            text: `Bot Latency ${Math.round(this.container.client.ws.ping)}ms. API Latency ${msg.createdTimestamp - message.createdTimestamp
-                }ms.`
-        }
-
-        return msg.edit({
-            embeds: [embed],
-        });
-    }
+		return msg.edit({
+			embeds: [embed]
+		});
+	}
 }
