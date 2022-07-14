@@ -1375,7 +1375,7 @@ export interface definitions {
     /** Format: text */
     description?: string;
     /** Format: integer */
-    level?: number;
+    level: number;
   };
   attributes: {
     /**
