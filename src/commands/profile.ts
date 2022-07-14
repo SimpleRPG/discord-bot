@@ -39,12 +39,10 @@ const characterFields = getFields(characterShape);
 })
 export class UserCommand extends SubCommandPluginCommand {
 	public async messageRun(message: Message) {
-		const { author } = message;
-
 		const { body: character } = await supabase
 			.from<typeof characterShape>('characters')
 			.select(characterFields)
-			.eq('discord_id', author.id)
+			.eq('discord_id', message.author.id)
 			.single();
 
 		if (character === null) {
@@ -53,13 +51,16 @@ export class UserCommand extends SubCommandPluginCommand {
 
 		const characterAttributes = character.character_attributes as Array<TCharacterAttributes>;
 
-		const embed = new MessageEmbed().setTitle(`${author.username}'s profile`).setColor('#0099ff').setThumbnail(`${author.avatarURL()}`);
+		const embed = new MessageEmbed()
+			.setTitle(`${message.author.username}'s profile`)
+			.setColor('#0099ff')
+			.setThumbnail(message.author.avatarURL() || message.author.defaultAvatarURL);
 
 		embed
 			.addField('Level', `${character.level}`, true)
-			.addField('Exp', `${character.exp} / 200`, true)
 			.addField('Money', character.money!.toString(), true)
-			.addField('Current location', character.location!.name!);
+			.addField('Exp', `${character.exp} / 200`)
+			.addField('Current location', character.location.name);
 
 		const attributesValue = characterAttributes
 			.map((characterAttribute) => {
@@ -72,19 +73,7 @@ export class UserCommand extends SubCommandPluginCommand {
 
 		embed.addField('Attributes', attributesValue);
 
-		embed.footer = {
-			text: `Bot Latency ?ms. API Latency ?ms.`
-		};
-
-		const msg = await message.channel.send({
-			embeds: [embed]
-		});
-
-		embed.footer = {
-			text: `Bot Latency ${Math.round(this.container.client.ws.ping)}ms. API Latency ${msg.createdTimestamp - message.createdTimestamp}ms.`
-		};
-
-		return msg.edit({
+		return await message.channel.send({
 			embeds: [embed]
 		});
 	}
