@@ -1,20 +1,23 @@
-import { ApplyOptions } from '@sapphire/decorators';
-import { SubCommandPluginCommand, SubCommandPluginCommandOptions } from '@sapphire/plugin-subcommands';
-import type { Message } from 'discord.js';
-import { registerUser } from '../services/userService';
+import { ApplyOptions } from "@sapphire/decorators";
+import {
+    SubCommandPluginCommand,
+    SubCommandPluginCommandOptions,
+} from "@sapphire/plugin-subcommands";
+import type { Message } from "discord.js";
+import { registerUser } from "../services/userService";
 
 @ApplyOptions<SubCommandPluginCommandOptions>({
-	description: 'A user command',
-	subCommands: ['register']
+    description: "A user command",
+    subCommands: ["register"],
 })
 export class UserCommand extends SubCommandPluginCommand {
-	public async register(message: Message) {
-		let isUserRegistered = await registerUser(message.author.id);
+    public async register(message: Message) {
+        const isUserRegistered = await registerUser(message.author.id);
 
-		if (!isUserRegistered) {
-			return message.channel.send('You are already registered!');
-		}
+        if (!isUserRegistered) {
+            return message.channel.send("You are already registered!");
+        }
 
-		return message.channel.send('You have registered!');
-	}
+        return message.channel.send("You have registered!");
+    }
 }
