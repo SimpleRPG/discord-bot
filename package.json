@@ -8,13 +8,13 @@
     "prod": "tsc && node dist/index.js",
     "start": "node dist/index.js",
     "build": "tsc",
-    "format": "prettier --write \"src/**/*.ts\""
+    "lint": "eslint ./src --fix"
   },
   "keywords": [],
   "author": "",
   "license": "UNKNOWN",
   "devDependencies": {
-    "@sapphire/prettier-config": "^1.4.3",
+    "@sapphire/eslint-config": "^4.3.7",
     "@sapphire/ts-config": "^3.3.4",
     "@types/node": "^18.0.3",
     "dotenv": "^16.0.1",
@@ -30,5 +30,7 @@
     "discord.js": "^13.8.1",
     "postgrest-js-tools": "^1.1.1"
   },
-  "prettier": "@sapphire/prettier-config"
+  "eslintConfig": {
+    "extends": "@sapphire"
+  }
 }
