@@ -17,6 +17,7 @@ import type { definitions } from "../types/supabase";
         { input: "all", default: true },
         { input: "mv", output: "move" },
         { input: "go", output: "move" },
+        { input: "goto", output: "move" },
     ],
 })
 export class UserCommand extends SubCommandPluginCommand {
