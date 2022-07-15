@@ -1,12 +1,17 @@
 import { AttributeEnum, LocationEnum } from "../enums";
 import supabase from "../supabase";
 import type { definitions } from "../types/supabase";
+import { getDefaultAttributeValue } from "./attributeService";
 
 export const registerUser = async (discordId: string): Promise<boolean> => {
     // check if character with discord id matches a character in the database
     if (await checkCharacterExists(discordId)) {
         return false;
     }
+
+    const attributeIds = Object.values(AttributeEnum)
+        .filter((v) => !isNaN(Number(v)))
+        .map((v) => Number(v));
 
     const { body: character } = await supabase
         .from<definitions["characters"]>("characters")
@@ -19,45 +24,19 @@ export const registerUser = async (discordId: string): Promise<boolean> => {
         })
         .single();
 
+    if (character === null) {
+        return false;
+    }
+
     await supabase
         .from<definitions["character_attributes"]>("character_attributes")
-        .insert([
-            {
-                attribute_id: AttributeEnum.HP,
-                character_id: character!.id,
-                value: 50,
-            },
-            {
-                attribute_id: AttributeEnum.Strength,
-                character_id: character!.id,
-                value: 15,
-            },
-            {
-                attribute_id: AttributeEnum.Defense,
-                character_id: character!.id,
-                value: 5,
-            },
-            {
-                attribute_id: AttributeEnum.CriticalChance,
-                character_id: character!.id,
-                value: 0,
-            },
-            {
-                attribute_id: AttributeEnum.CriticalDamage,
-                character_id: character!.id,
-                value: 0,
-            },
-            {
-                attribute_id: AttributeEnum.EvadeChance,
-                character_id: character!.id,
-                value: 0,
-            },
-            {
-                attribute_id: AttributeEnum.EscapeChance,
-                character_id: character!.id,
-                value: 0,
-            },
-        ]);
+        .insert(
+            attributeIds.map((id) => ({
+                character_id: character.id,
+                attribute_id: id,
+                value: getDefaultAttributeValue(id),
+            }))
+        );
 
     return true;
 };
