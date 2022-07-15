@@ -8,7 +8,8 @@
     "prod": "tsc && node dist/index.js",
     "start": "node dist/index.js",
     "build": "tsc",
-    "lint": "eslint src --fix"
+    "lint": "eslint src --fix",
+    "update-types": ". ./.env && npx openapi-typescript \"${SUPABASE_URL}/rest/v1/?apikey=${SUPABASE_ANON_KEY}\" --version=2 --output src/types/supabase.ts"
   },
   "keywords": [],
   "author": "",
@@ -18,6 +19,7 @@
     "@sapphire/ts-config": "^3.3.4",
     "@types/node": "^18.0.3",
     "dotenv": "^16.0.1",
+    "openapi-typescript": "^5.4.1",
     "tsc-watch": "^5.0.3",
     "typescript": "^4.7.4"
   },
