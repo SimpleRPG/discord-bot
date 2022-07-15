@@ -899,6 +899,7 @@ export interface paths {
           created_at?: parameters["rowFilter.attributes.created_at"];
           name?: parameters["rowFilter.attributes.name"];
           is_percentage?: parameters["rowFilter.attributes.is_percentage"];
+          character_default_value?: parameters["rowFilter.attributes.character_default_value"];
           /** Filtering Columns */
           select?: parameters["select"];
           /** Ordering */
@@ -953,6 +954,7 @@ export interface paths {
           created_at?: parameters["rowFilter.attributes.created_at"];
           name?: parameters["rowFilter.attributes.name"];
           is_percentage?: parameters["rowFilter.attributes.is_percentage"];
+          character_default_value?: parameters["rowFilter.attributes.character_default_value"];
         };
         header: {
           /** Preference */
@@ -971,6 +973,7 @@ export interface paths {
           created_at?: parameters["rowFilter.attributes.created_at"];
           name?: parameters["rowFilter.attributes.name"];
           is_percentage?: parameters["rowFilter.attributes.is_percentage"];
+          character_default_value?: parameters["rowFilter.attributes.character_default_value"];
         };
         body: {
           /** attributes */
@@ -1393,6 +1396,8 @@ export interface definitions {
     name: string;
     /** Format: boolean */
     is_percentage: boolean;
+    /** Format: real */
+    character_default_value: number;
   };
   entity_attributes: {
     /**
@@ -1581,6 +1586,8 @@ export interface parameters {
   "rowFilter.attributes.name": string;
   /** Format: boolean */
   "rowFilter.attributes.is_percentage": string;
+  /** Format: real */
+  "rowFilter.attributes.character_default_value": string;
   /** @description entity_attributes */
   "body.entity_attributes": definitions["entity_attributes"];
   /** Format: bigint */
