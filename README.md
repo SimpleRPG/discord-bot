@@ -1,5 +1,7 @@
 # Discord Bot
 
+[![Maintainability](https://api.codeclimate.com/v1/badges/60d8bd8be6d800426995/maintainability)](https://codeclimate.com/github/SimpleRPG/discord-bot/maintainability)
+
 Install dependencies
 
 ```bash
