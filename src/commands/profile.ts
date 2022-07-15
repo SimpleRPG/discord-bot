@@ -69,6 +69,7 @@ export class UserCommand extends SubCommandPluginCommand {
             .addField("Current location", character.location.name);
 
         const attributesValue = characterAttributes
+            .sort((a, b) => a.attribute.id - b.attribute.id)
             .map((characterAttribute) => {
                 return `${
                     characterAttribute.attribute.name
