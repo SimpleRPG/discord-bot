@@ -10,7 +10,8 @@
     "build": "tsc",
     "lint": "eslint src --fix",
     "update-types": "npx openapi-typescript \"${SUPABASE_URL}/rest/v1/?apikey=${SUPABASE_ANON_KEY}\" --version=2 --output src/types/supabase.ts",
-    "update-types:bash": ". .env && npx openapi-typescript \"${SUPABASE_URL}/rest/v1/?apikey=${SUPABASE_ANON_KEY}\" --version=2 --output src/types/supabase.ts"
+    "update-types:bash": "export $(cat .env | xargs) && npx openapi-typescript \"${SUPABASE_URL}/rest/v1/?apikey=${SUPABASE_ANON_KEY}\" --version=2 --output src/types/supabase.ts",
+    "update-types:win": "$export $(cat .env | xargs) && npx openapi-typescript \"${SUPABASE_URL}/rest/v1/?apikey=${SUPABASE_ANON_KEY}\" --version=2 --output src/types/supabase.ts"
   },
   "keywords": [],
   "author": "",
