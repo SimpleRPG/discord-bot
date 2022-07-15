@@ -22,9 +22,9 @@ import type { definitions } from "../types/supabase";
 })
 export class UserCommand extends SubCommandPluginCommand {
     public async move(message: Message, args: Args) {
-        const locationName = args.next();
+        const locationName = await args.rest("string").catch(() => "");
 
-        if (!locationName) {
+        if (locationName === "") {
             return message.reply("You must specify a location!");
         }
 
@@ -37,7 +37,7 @@ export class UserCommand extends SubCommandPluginCommand {
         const { body: location } = await supabase
             .from<typeof locationsShape>("locations")
             .select(getFields(locationsShape))
-            .eq("name", locationName)
+            .ilike("name", locationName)
             .single();
 
         if (location === null) {
