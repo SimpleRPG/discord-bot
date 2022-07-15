@@ -2,6 +2,28 @@ import { LocationEnum } from "../enums";
 import supabase from "../supabase";
 import type { definitions } from "../types/supabase";
 
+const defaultCharacterValues = <definitions["characters"]>{
+    level: 1,
+    exp: 0,
+    money: 200,
+    location_id: LocationEnum.Hometown,
+};
+
+const getDefaultCharacterAttributeValues = async (characterId: number) => {
+    const { data: attributes } = await supabase
+        .from<definitions["attributes"]>("attributes")
+        .select()
+        .order("id");
+
+    return (
+        attributes?.map((attribute) => ({
+            character_id: characterId,
+            attribute_id: attribute.id,
+            value: attribute.character_default_value,
+        })) || []
+    );
+};
+
 export const registerUser = async (discordId: string): Promise<boolean> => {
     // check if character with discord id matches a character in the database
     if (await checkCharacterExists(discordId)) {
@@ -11,11 +33,8 @@ export const registerUser = async (discordId: string): Promise<boolean> => {
     const { body: character } = await supabase
         .from<definitions["characters"]>("characters")
         .insert({
+            ...defaultCharacterValues,
             discord_id: discordId,
-            level: 1,
-            exp: 0,
-            money: 200,
-            location_id: LocationEnum.Hometown,
         })
         .single();
 
@@ -23,20 +42,9 @@ export const registerUser = async (discordId: string): Promise<boolean> => {
         return false;
     }
 
-    const { data: attributes } = await supabase
-        .from<definitions["attributes"]>("attributes")
-        .select()
-        .order("id");
-
     await supabase
         .from<definitions["character_attributes"]>("character_attributes")
-        .insert(
-            attributes!.map((attribute) => ({
-                character_id: character.id,
-                attribute_id: attribute.id,
-                value: attribute.character_default_value,
-            }))
-        );
+        .insert(await getDefaultCharacterAttributeValues(character.id));
 
     return true;
 };
