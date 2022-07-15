@@ -4,8 +4,6 @@ export enum AttributeEnum {
     Defense = 3,
     CriticalChance = 4,
     CriticalDamage = 5,
-    EvadeChance = 6,
-    EscapeChance = 7,
 }
 
 export enum LocationEnum {
