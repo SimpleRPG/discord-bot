@@ -1342,7 +1342,7 @@ export interface definitions {
      */
     created_at?: string;
     /** Format: character varying */
-    name?: string;
+    name: string;
   };
   items: {
     /**
@@ -1423,7 +1423,7 @@ export interface definitions {
      * This is a Foreign Key to `attributes.id`.<fk table='attributes' column='id'/>
      */
     attribute_id?: number;
-    /** Format: bigint */
+    /** Format: real */
     value?: number;
   };
   item_qualities: {
@@ -1598,7 +1598,7 @@ export interface parameters {
   "rowFilter.entity_attributes.entity_id": string;
   /** Format: bigint */
   "rowFilter.entity_attributes.attribute_id": string;
-  /** Format: bigint */
+  /** Format: real */
   "rowFilter.entity_attributes.value": string;
   /** @description item_qualities */
   "body.item_qualities": definitions["item_qualities"];
