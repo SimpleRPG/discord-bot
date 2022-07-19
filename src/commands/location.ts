@@ -6,6 +6,7 @@ import {
 } from "@sapphire/plugin-subcommands";
 import { Message, MessageEmbed } from "discord.js";
 import { getFields, getShape } from "postgrest-js-tools";
+import { prisma } from "../db";
 import supabase from "../supabase";
 import type { definitions } from "../types/supabase";
 
@@ -81,14 +82,7 @@ export class UserCommand extends SubCommandPluginCommand {
     }
 
     public async all(message: Message) {
-        const shape = getShape<definitions["locations"]>()({
-            name: true,
-            level: true,
-        });
-
-        const { data: locations } = await supabase
-            .from<typeof shape>("locations")
-            .select(getFields(shape));
+        const locations = await prisma.locations.findMany();
 
         const embed = new MessageEmbed()
             .setTitle("Locations")
