@@ -4,56 +4,34 @@ import {
     SubCommandPluginCommandOptions,
 } from "@sapphire/plugin-subcommands";
 import { Message, MessageEmbed } from "discord.js";
-import { getFields, getShape } from "postgrest-js-tools";
+import { prisma } from "../db";
 import { attributeValueToString } from "../services/userService";
-import supabase from "../supabase";
-import type { definitions } from "../types/supabase";
-
-type TCharacterAttributes = definitions["character_attributes"] & {
-    attribute: definitions["attributes"];
-};
-
-// character include location
-type TCharacter = definitions["characters"] & {
-    location: definitions["locations"];
-    character_attributes: TCharacterAttributes | TCharacterAttributes[];
-};
-
-const characterShape = getShape<TCharacter>()({
-    "*": true,
-    location: {
-        _: "location_id",
-        name: true,
-    },
-    character_attributes: {
-        _: "character_attributes",
-        "*": true,
-        attribute: {
-            _: "attribute_id",
-            "*": true,
-        },
-    },
-});
-
-const characterFields = getFields(characterShape);
 
 @ApplyOptions<SubCommandPluginCommandOptions>({
     description: "A profile command",
 })
 export class UserCommand extends SubCommandPluginCommand {
     public async messageRun(message: Message) {
-        const { body: character } = await supabase
-            .from<typeof characterShape>("characters")
-            .select(characterFields)
-            .eq("discord_id", message.author.id)
-            .single();
+        const character = await prisma.characters.findUnique({
+            where: {
+                discord_id: message.author.id,
+            },
+            include: {
+                locations: true,
+                character_attributes: {
+                    include: {
+                        attributes: true,
+                    },
+                    orderBy: {
+                        attribute_id: "asc",
+                    },
+                },
+            },
+        });
 
         if (character === null) {
             return message.reply("You have no character!");
         }
-
-        const characterAttributes =
-            character.character_attributes as Array<TCharacterAttributes>;
 
         const embed = new MessageEmbed()
             .setTitle(`${message.author.username}'s profile`)
@@ -66,16 +44,15 @@ export class UserCommand extends SubCommandPluginCommand {
             .addField("Level", `${character.level}`, true)
             .addField("Money", character.money!.toString(), true)
             .addField("Exp", `${character.exp} / 200`)
-            .addField("Current location", character.location.name);
+            .addField("Current location", character.locations!.name);
 
-        const attributesValue = characterAttributes
-            .sort((a, b) => a.attribute.id - b.attribute.id)
+        const attributesValue = character.character_attributes
             .map((characterAttribute) => {
                 return `${
-                    characterAttribute.attribute.name
+                    characterAttribute.attributes!.name
                 }: ${attributeValueToString(
                     characterAttribute.value,
-                    characterAttribute.attribute.is_percentage
+                    characterAttribute.attributes!.is_percentage
                 )}`;
             })
             .join("\n");
