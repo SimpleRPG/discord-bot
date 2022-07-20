@@ -20,7 +20,8 @@
 				"eamodio.gitlens",
 				"VisualStudioExptTeam.vscodeintellicode",
 				"Prisma.prisma",
-				"GitHub.copilot"
+				"GitHub.copilot",
+				"codezombiech.gitignore"
 			]
 		}
 	},
