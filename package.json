@@ -8,33 +8,34 @@
     "prod": "tsc && node dist/index.js",
     "start": "node dist/index.js",
     "build": "tsc",
-    "lint": "eslint src --fix",
-    "update-types": "npx openapi-typescript \"${SUPABASE_URL}/rest/v1/?apikey=${SUPABASE_ANON_KEY}\" --version=2 --output src/types/supabase.ts",
-    "update-types:bash": "export $(cat .env | xargs) && npx openapi-typescript \"${SUPABASE_URL}/rest/v1/?apikey=${SUPABASE_ANON_KEY}\" --version=2 --output src/types/supabase.ts"
+    "lint": "eslint src --fix"
   },
   "keywords": [],
   "author": "",
   "license": "UNKNOWN",
   "dependencies": {
+    "@prisma/client": "^4.0.0",
     "@sapphire/decorators": "^4.3.6",
     "@sapphire/framework": "^2.5.1",
     "@sapphire/plugin-subcommands": "^2.2.2",
     "@sapphire/utilities": "^3.7.0",
-    "@supabase/supabase-js": "^1.35.4",
-    "discord.js": "^13.8.1",
-    "postgrest-js-tools": "^1.1.1"
+    "discord.js": "^13.8.1"
   },
   "devDependencies": {
     "@sapphire/cli": "^1.2.0",
     "@sapphire/eslint-config": "^4.3.7",
     "@sapphire/ts-config": "^3.3.4",
-    "@types/node": "^18.0.3",
+    "@types/node": "^18.0.6",
     "dotenv": "^16.0.1",
-    "openapi-typescript": "^5.4.1",
+    "prisma": "^4.0.0",
+    "ts-node": "^10.9.1",
     "tsc-watch": "^5.0.3",
     "typescript": "^4.7.4"
   },
   "eslintConfig": {
     "extends": "@sapphire"
+  },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
   }
 }

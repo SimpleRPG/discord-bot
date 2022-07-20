@@ -5,9 +5,7 @@ import {
     SubCommandPluginCommandOptions,
 } from "@sapphire/plugin-subcommands";
 import { Message, MessageEmbed } from "discord.js";
-import { getFields, getShape } from "postgrest-js-tools";
-import supabase from "../supabase";
-import type { definitions } from "../types/supabase";
+import { prisma } from "../db";
 
 @ApplyOptions<SubCommandPluginCommandOptions>({
     description: "A basic command",
@@ -28,33 +26,24 @@ export class UserCommand extends SubCommandPluginCommand {
             return message.reply("You must specify a location!");
         }
 
-        const locationsShape = getShape<definitions["locations"]>()({
-            id: true,
-            name: true,
-            level: true,
+        const location = await prisma.locations.findFirst({
+            where: {
+                name: {
+                    contains: locationName,
+                    mode: "insensitive",
+                },
+            },
         });
-
-        const { body: location } = await supabase
-            .from<typeof locationsShape>("locations")
-            .select(getFields(locationsShape))
-            .ilike("name", locationName)
-            .single();
 
         if (location === null) {
             return message.reply("That location does not exist!");
         }
 
-        const characterShape = getShape<definitions["characters"]>()({
-            location_id: true,
-            level: true,
-            discord_id: true,
+        const character = await prisma.characters.findUnique({
+            where: {
+                discord_id: message.author.id,
+            },
         });
-
-        const { body: character } = await supabase
-            .from<typeof characterShape>("characters")
-            .select(getFields(characterShape))
-            .eq("discord_id", message.author.id)
-            .single();
 
         if (character === null) {
             return message.reply("You have no character!");
@@ -70,25 +59,20 @@ export class UserCommand extends SubCommandPluginCommand {
             );
         }
 
-        await supabase
-            .from<typeof characterShape>("characters")
-            .update({
+        await prisma.characters.update({
+            data: {
                 location_id: location.id,
-            })
-            .eq("discord_id", message.author.id);
+            },
+            where: {
+                discord_id: message.author.id,
+            },
+        });
 
         return message.reply(`You have moved to ${location.name}!`);
     }
 
     public async all(message: Message) {
-        const shape = getShape<definitions["locations"]>()({
-            name: true,
-            level: true,
-        });
-
-        const { data: locations } = await supabase
-            .from<typeof shape>("locations")
-            .select(getFields(shape));
+        const locations = await prisma.locations.findMany();
 
         const embed = new MessageEmbed()
             .setTitle("Locations")
