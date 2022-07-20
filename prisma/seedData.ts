@@ -1,4 +1,5 @@
 import type { Prisma } from "@prisma/client";
+import { prisma } from "../src/db";
 import { AttributeEnum, LocationEnum } from "../src/enums";
 
 export const attributeData: Prisma.attributesCreateInput[] = [
@@ -77,8 +78,12 @@ export const entityData: Prisma.entitiesCreateInput[] = [
     {
         name: "Spider",
         entity_locations: {
-            connect: {
-                id: LocationEnum.Hometown,
+            createMany: {
+                data: [
+                    {
+                        location_id: LocationEnum.Hometown,
+                    },
+                ],
             },
         },
         entity_attributes: {
@@ -109,3 +114,9 @@ export const entityData: Prisma.entitiesCreateInput[] = [
         },
     },
 ];
+
+export const seedEntities = () => {
+    entityData.forEach(async (entity) => {
+        await prisma.entities.create({ data: entity });
+    });
+};
