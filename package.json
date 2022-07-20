@@ -19,16 +19,13 @@
     "@sapphire/framework": "^2.5.1",
     "@sapphire/plugin-subcommands": "^2.2.2",
     "@sapphire/utilities": "^3.7.0",
-    "@supabase/supabase-js": "^1.35.4",
-    "discord.js": "^13.8.1",
-    "postgrest-js-tools": "^1.1.1"
+    "discord.js": "^13.8.1"
   },
   "devDependencies": {
     "@sapphire/eslint-config": "^4.3.7",
     "@sapphire/ts-config": "^3.3.4",
     "@types/node": "^18.0.6",
     "dotenv": "^16.0.1",
-    "openapi-typescript": "^5.4.1",
     "prisma": "^4.0.0",
     "ts-node": "^10.9.1",
     "tsc-watch": "^5.0.3",
