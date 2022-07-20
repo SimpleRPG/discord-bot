@@ -8,7 +8,7 @@ import { prisma } from "../db";
 import { attackEntity } from "../services/battleService";
 
 @ApplyOptions<SubCommandPluginCommandOptions>({
-    description: "A basic command",
+    description: "An explore command",
 })
 export class UserCommand extends SubCommandPluginCommand {
     public async messageRun(message: Message) {
