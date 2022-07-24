@@ -28,16 +28,10 @@ Run the bot in production mode
 npm run prod
 ```
 
-## Optional
-
-Install sapphire cli
-
-```bash
-npm install -g @sapphire/cli
-```
+## Tips
 
 Create command using sapphire cli
 
 ```bash
-sapphire generate command [command name] 
+npx sapphire generate command [command name]
 ```

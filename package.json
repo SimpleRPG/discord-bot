@@ -22,6 +22,7 @@
     "discord.js": "^13.8.1"
   },
   "devDependencies": {
+    "@sapphire/cli": "^1.2.0",
     "@sapphire/eslint-config": "^4.3.7",
     "@sapphire/ts-config": "^3.3.4",
     "@types/node": "^18.0.6",
