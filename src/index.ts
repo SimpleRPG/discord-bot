@@ -1,6 +1,5 @@
 import { LogLevel, SapphireClient } from "@sapphire/framework";
 import { BOT_PREFIX, BOT_TOKEN } from "./config";
-import { prisma } from "./db";
 
 const client = new SapphireClient({
     defaultPrefix: BOT_PREFIX,
@@ -15,10 +14,7 @@ const client = new SapphireClient({
 
 const main = async () => {
     try {
-        client.logger.info("Logging in");
         await client.login(BOT_TOKEN);
-        await prisma.$connect(); // Connect to the database
-        client.logger.info("Logged in");
     } catch (error) {
         client.logger.fatal(error);
         client.destroy();
@@ -26,6 +22,4 @@ const main = async () => {
     }
 };
 
-main().finally(async () => {
-    await prisma.$disconnect();
-});
+void main();
