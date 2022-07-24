@@ -23,7 +23,7 @@ Create PostgreSQL database with username=`postgres` password=`postres` databasen
 Then run to apply tables to the database
 
 ```bash
-npx prisma migrate dev
+npx prisma db push
 ```
 
 Seed default data to the database
