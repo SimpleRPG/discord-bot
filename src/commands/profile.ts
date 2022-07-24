@@ -9,6 +9,7 @@ import { attributeValueToString } from "../services/userService";
 
 @ApplyOptions<SubCommandPluginCommandOptions>({
     description: "A profile command",
+    preconditions: ["RegisteredUser"],
 })
 export class UserCommand extends SubCommandPluginCommand {
     public async messageRun(message: Message) {
@@ -40,11 +41,26 @@ export class UserCommand extends SubCommandPluginCommand {
                 message.author.avatarURL() || message.author.defaultAvatarURL
             );
 
-        embed
-            .addField("Level", `${character.level}`, true)
-            .addField("Money", character.money!.toString(), true)
-            .addField("Exp", `${character.exp} / 200`)
-            .addField("Current location", character.locations!.name);
+        embed.addFields([
+            {
+                name: "Level",
+                value: `${character.level}`,
+                inline: true,
+            },
+            {
+                name: "Money",
+                value: character.money!.toString(),
+                inline: true,
+            },
+            {
+                name: "Exp",
+                value: `${character.exp} / 200`,
+            },
+            {
+                name: "Current location",
+                value: character.locations!.name,
+            },
+        ]);
 
         const attributesValue = character.character_attributes
             .map((characterAttribute) => {
@@ -57,7 +73,12 @@ export class UserCommand extends SubCommandPluginCommand {
             })
             .join("\n");
 
-        embed.addField("Attributes", attributesValue);
+        embed.addFields([
+            {
+                name: "Attributes",
+                value: attributesValue,
+            },
+        ]);
 
         return message.channel.send({
             embeds: [embed],
