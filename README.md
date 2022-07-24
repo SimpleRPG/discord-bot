@@ -16,6 +16,23 @@ cp .env.example .env
 
 Then, set value of `BOT_TOKEN` with your discord bot token.
 
+Configure Database: PostgreSQL required
+
+Create PostgreSQL database with username=`postgres` password=`postres` databasename=`postgres` to match the DATABASE_URL value in .env. You can modify it however you want as long as you know what you are doing.
+
+Then run to apply tables to the database
+
+```bash
+npx prisma migrate dev
+```
+
+Seed default data to the database
+
+```bash
+npx prisma db seed
+```
+
+
 Run the bot in development mode
 
 ```bash
