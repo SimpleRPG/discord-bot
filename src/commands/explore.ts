@@ -9,6 +9,7 @@ import { attackEntity } from "../services/battleService";
 
 @ApplyOptions<SubCommandPluginCommandOptions>({
     description: "An explore command",
+    preconditions: ["RegisteredUser"],
 })
 export class UserCommand extends SubCommandPluginCommand {
     public async messageRun(message: Message) {
@@ -25,15 +26,11 @@ export class UserCommand extends SubCommandPluginCommand {
             },
         });
 
-        if (character === null) {
-            return message.reply("You don't have a character!");
-        }
-
         const entities = await prisma.entities.findMany({
             where: {
                 entity_locations: {
                     some: {
-                        location_id: character.location_id,
+                        location_id: character!.location_id,
                     },
                 },
             },
@@ -49,7 +46,7 @@ export class UserCommand extends SubCommandPluginCommand {
         // get random entity
         const entity = entities[Math.floor(Math.random() * entities.length)];
 
-        const winner = attackEntity(character, entity);
+        const winner = attackEntity(character!, entity);
 
         // embed details of the battle
         const embed = new MessageEmbed().setTitle(
