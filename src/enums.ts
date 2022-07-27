@@ -9,3 +9,9 @@ export enum AttributeEnum {
 export enum LocationEnum {
     Hometown = 1,
 }
+
+export enum ItemTypeEnum {
+    Raw = 1,
+    Consumable = 2,
+    Equipment = 3,
+}
