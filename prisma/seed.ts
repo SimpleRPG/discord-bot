@@ -1,16 +1,21 @@
 import { PrismaClient } from "@prisma/client";
-import { attributeData, locationData, seedEntities } from "./seedData";
+import {
+    seedAttributes,
+    seedEntities,
+    seedItems,
+    seedItemTypes,
+    seedLocations,
+} from "./seedData";
 
 const prisma = new PrismaClient();
 
 async function main() {
     console.log("Start seeding...");
-    console.log("Seeding attributes...");
-    await prisma.attributes.createMany({ data: attributeData });
-    console.log("Seeding locations...");
-    await prisma.locations.createMany({ data: locationData });
-    console.log("Seeding entities...");
+    await seedAttributes();
+    await seedLocations();
     seedEntities();
+    await seedItemTypes();
+    await seedItems();
     console.log("Seeding finished.");
 }
 
