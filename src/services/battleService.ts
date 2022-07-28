@@ -41,7 +41,7 @@ interface Attribute {
     criticalDamage: number;
 }
 
-export const attackEntity = (character: characters, entity: entities) => {
+export const startAttackEntity = (character: characters, entity: entities) => {
     const characterAttributes = convertCharacterAttributes(
         character.character_attributes
     );
