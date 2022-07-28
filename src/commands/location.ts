@@ -26,27 +26,15 @@ export class UserCommand extends SubCommandPluginCommand {
             return message.reply("You must specify a location!");
         }
 
-        const location = await prisma.locations.findFirst({
-            where: {
-                name: {
-                    contains: locationName,
-                    mode: "insensitive",
-                },
-            },
-        });
+        const location = await getLocation(locationName);
+        const character = await getCharacter(message);
 
         if (location === null) {
             return message.reply("That location does not exist!");
         }
 
-        const character = await prisma.characters.findUnique({
-            where: {
-                discord_id: message.author.id,
-            },
-        });
-
         if (character === null) {
-            return message.reply("You have no character!");
+            return message.reply("You are not registered!");
         }
 
         if (character.location_id === location.id) {
@@ -59,14 +47,7 @@ export class UserCommand extends SubCommandPluginCommand {
             );
         }
 
-        await prisma.characters.update({
-            data: {
-                location_id: location.id,
-            },
-            where: {
-                discord_id: message.author.id,
-            },
-        });
+        await updateCharacterLocation(message.author.id, location.id);
 
         return message.reply(`You have moved to ${location.name}!`);
     }
@@ -88,4 +69,34 @@ export class UserCommand extends SubCommandPluginCommand {
             embeds: [embed],
         });
     }
+}
+
+async function updateCharacterLocation(discordId: string, locationId: bigint) {
+    await prisma.characters.update({
+        data: {
+            location_id: locationId,
+        },
+        where: {
+            discord_id: discordId,
+        },
+    });
+}
+
+async function getCharacter(message: Message<boolean>) {
+    return prisma.characters.findUnique({
+        where: {
+            discord_id: message.author.id,
+        },
+    });
+}
+
+async function getLocation(locationName: string) {
+    return prisma.locations.findFirst({
+        where: {
+            name: {
+                equals: locationName,
+                mode: "insensitive",
+            },
+        },
+    });
 }
