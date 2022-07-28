@@ -1,5 +1,7 @@
+import { MessageEmbed, User } from "discord.js";
 import { prisma } from "../db";
 import { LocationEnum } from "../enums";
+import type { CharacterWithLocationAndAttributes } from "../types";
 
 export const registerUser = async (discordId: string): Promise<boolean> => {
     // check if character with discord id matches a character in the database
@@ -59,4 +61,51 @@ export const attributeValueToString = (
         return `${value * 100}%`;
     }
     return `${value}`;
+};
+
+export const getProfileEmbed = (
+    character: CharacterWithLocationAndAttributes,
+    author: User
+): MessageEmbed => {
+    const attributesValue = character.character_attributes
+        .map((characterAttribute) => {
+            return `${
+                characterAttribute.attributes!.name
+            }: ${attributeValueToString(
+                characterAttribute.value,
+                characterAttribute.attributes!.is_percentage
+            )}`;
+        })
+        .join("\n");
+
+    return new MessageEmbed()
+        .setTitle(`${author.username}'s profile`)
+        .setColor("#0099ff")
+        .setThumbnail(author.avatarURL() || author.defaultAvatarURL)
+        .addFields([
+            {
+                name: "Level",
+                value: `${character.level}`,
+                inline: true,
+            },
+            {
+                name: "Money",
+                value: character.money!.toString(),
+                inline: true,
+            },
+            {
+                name: "Exp",
+                value: `${character.exp} / 200`,
+            },
+            {
+                name: "Current location",
+                value: character.locations!.name,
+            },
+        ])
+        .addFields([
+            {
+                name: "Attributes",
+                value: attributesValue,
+            },
+        ]);
 };
